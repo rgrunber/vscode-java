@@ -1,5 +1,6 @@
 
 import * as fs from 'fs';
+import * as fse from 'fs-extra';
 import * as glob from 'glob';
 import * as net from 'net';
 import * as os from 'os';
@@ -9,7 +10,7 @@ import { Executable, ExecutableOptions, StreamInfo, TransportKind } from 'vscode
 import { logger } from './log';
 import { addLombokParam, isLombokSupportEnabled } from './lombokSupport';
 import { RequirementsData } from './requirements';
-import { getJavaagentFlag, getJavaEncoding, getKey, isInWorkspaceFolder, IS_WORKSPACE_VMARGS_ALLOWED } from './settings';
+import { IS_WORKSPACE_VMARGS_ALLOWED, getJavaEncoding, getJavaagentFlag, getKey, isInWorkspaceFolder } from './settings';
 import { deleteDirectory, ensureExists, getJavaConfiguration, getTimestamp } from './utils';
 
 // eslint-disable-next-line no-var
@@ -313,6 +314,17 @@ export function parseVMargs(params: any[], vmargsLine: string) {
 		arg = arg.replace(/(\\)"/g, '"');
 		if (params.indexOf(arg) < 0) {
 			params.push(arg);
+		}
+	});
+}
+
+export function removeEquinoxFragmentOnDarwinX64(context: ExtensionContext) {
+	// https://github.com/redhat-developer/vscode-java/issues/3484
+	const extensionPath = context.extensionPath;
+	new glob.Glob(`${extensionPath}/server/plugins/org.eclipse.equinox.launcher.cocoa.macosx.x86_64*.jar`, (_err, matches) => {
+		for (const fragment of matches) {
+			fse.remove(fragment);
+			logger.info(`Removing Equinox launcher fragment : ${fragment}`);
 		}
 	});
 }

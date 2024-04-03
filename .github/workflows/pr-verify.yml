@@ -20,7 +20,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
-      - run: npm install -g typescript "vsce"
+      - run: npm install -g typescript "@vscode/vsce"
       - run: wget http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz
       - run: mkdir server && tar -xvzf jdt-language-server-latest.tar.gz -C ./server && rm jdt-language-server-latest.tar.gz
       - run: npm install
@@ -34,7 +34,7 @@ jobs:
         if: runner.os == 'Linux'
         env:
           SKIP_COMMANDS_TEST: true
-        run: $(echo "xvfb-run --auto-servernum") npm run test --silent
+        run: xvfb-run --auto-servernum npm run test --silent
       - name: Run Tests
         if: runner.os != 'Linux'
         env:
